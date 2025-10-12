@@ -5,6 +5,8 @@ import requests
 import pandas as pd
 from profile_logic import determine_commuter_profile, COMMUTER_PROFILES
 import datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo # Note: Adding ZoneInfo for time zone awareness in the main canvas display
 
 # --- Configuration ---
 # IMPORTANT: Replace "YOUR_GEMINI_API_KEY" with your actual Gemini API key.
@@ -171,7 +173,7 @@ BUS_SCHEDULE_DATA = {
 
 # --- Load and Analyze Survey Data from CSV ---
 try:
-    df = pd.read_csv("AlmereBot/urban.csv")
+    df = pd.read_csv("urban.csv")
 
     # Clean and analyze the data to create a summary for the chatbot
     # Ensure column names match your CSV exactly
@@ -343,12 +345,35 @@ st.set_page_config(page_title="Urbanvind Commuter Chatbot", layout="centered")
 st.title("🏙️ Urbanvind Commuter Chatbot")
 st.markdown("Your personalized travel assistant for Almere.")
 
+# --- Main Canvas: Display Current Time ---
+# Get current time in Almere (Europe/Amsterdam timezone)
+try:
+    current_time_almere = datetime.now(ZoneInfo('Europe/Amsterdam'))
+except NameError:
+    # Fallback if ZoneInfo isn't available (though it should be with modern Python)
+    current_time_almere = datetime.now() 
+    
+# Format as a clear date and time string
+formatted_time = current_time_almere.strftime("%A, %B %d, %H:%M:%S %Z")
+
+st.caption("Current Local Time (Almere):")
+st.markdown(f"**{formatted_time}**")
+st.markdown("---")
+# --- END Main Canvas Time ---
+
+
 # --- Sidebar for Live Crowding Data ---
 st.sidebar.title("📊 Live Crowding Data")
 st.sidebar.markdown("*(Simulated data for demonstration)*")
 
-# Get current hour for sidebar display
-current_hour_for_display = datetime.datetime.now().hour
+# Get current hour for sidebar lookup
+current_hour_for_display = current_time_almere.hour
+
+# --- MODIFIED: Format the hour as HH:00 ---
+# Use 02d for zero padding (e.g., 9 -> 09)
+formatted_hour_display = f"{current_hour_for_display:02d}:00" 
+# --- END MODIFIED ---
+
 current_time_key_for_display = f'Hour {current_hour_for_display}'
 
 st.sidebar.subheader("Almere Bus Lines")
@@ -367,7 +392,8 @@ for line, hours_data in SIMULATED_CROWDING_DATA.items():
     else:
         color = "#F44336" # Red
 
-    st.sidebar.markdown(f"**{line}** ({current_time_key_for_display}):")
+    # --- MODIFIED: Use the formatted time string ---
+    st.sidebar.markdown(f"**{line}** ({formatted_hour_display}):")
     st.sidebar.progress(percentage, text=f"{percentage}% ({status})")
 
 
