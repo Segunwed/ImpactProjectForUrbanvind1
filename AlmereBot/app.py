@@ -173,7 +173,7 @@ BUS_SCHEDULE_DATA = {
 
 # --- Load and Analyze Survey Data from CSV ---
 try:
-    df = pd.read_csv("urban.csv")
+    df = pd.read_csv("AlmereBot/urban.csv")
 
     # Clean and analyze the data to create a summary for the chatbot
     # Ensure column names match your CSV exactly
