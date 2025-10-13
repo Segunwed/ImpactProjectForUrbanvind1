@@ -299,7 +299,7 @@ def generate_bot_response_with_gemini(user_message, selected_profile, csv_summar
     the user's profile, simulated crowding data, CSV survey summary, and bus schedule data.
     """
     profile_info = COMMUTER_PROFILES.get(selected_profile, {"description": "unknown", "logic_keywords": "unknown"})
-    current_hour = datetime.datetime.now().hour
+    current_hour = datetime.now().hour
     current_time_key = f'Hour {current_hour}' # Use exact hour for lookup
 
     # Get current crowding data for all lines
