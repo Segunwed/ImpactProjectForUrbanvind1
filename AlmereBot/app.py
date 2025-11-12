@@ -174,28 +174,21 @@ BUS_SCHEDULE_DATA = {
 # --- Load and Analyze Survey Data from CSV ---
 try:
     df = pd.read_csv("AlmereBot/urban.csv")
+# CRITICAL FIX 1: Normalize all whitespace and strip, as hidden characters are likely the cause.
+    df.columns = df.columns.str.replace(r'\s+', ' ', regex=True) # Replace any sequence of whitespace (tabs, newlines, etc.) with a single space
+    df.columns = df.columns.str.strip() # Strip leading/trailing standard spaces
 
-    # CRITICAL FIX: Strip whitespace from column names to prevent KeyErrors
-    df.columns = df.columns.str.strip() 
+    # CRITICAL FIX 2: Rename the problematic column to a simple, internal name to guarantee success.
+    # The original header name must be correct after the aggressive strip/normalize above.
+    df = df.rename(columns={
+        'What issues frustrate you most about Almere Bus line?': 'issues_frustration_clean'
+    }, errors='ignore') # Ignore if the name is somehow still not found
 
-    # Clean and analyze the data to create a summary for the chatbot
-    # Ensure column names match your CSV exactly
-    issues_frustration = df['What issues frustrate you most about Almere Bus line?'].value_counts()
-    
-    # Handle potential non-numeric values in 'What time do you usually leave for work/school?'
-    # Convert to datetime objects for proper averaging
-    df['Departure_Hour'] = df['What time do you usually leave for work/school?'].apply(lambda x: pd.to_datetime(x, format='%H:%M:%S', errors='coerce').hour if pd.notna(x) else None)
-    commute_time_average_hour = df['Departure_Hour'].mean() if df['Departure_Hour'].notna().any() else None
+    # Use the new, safe column name for the summary analysis
+    issues_frustration = df['issues_frustration_clean'].value_counts().head(3).to_dict()
+    commute_frequency = df['How many days per week do you commute?'].value_counts().idxmax()
+    crowd_levels = df['How crowded is your usual bus during peak hours?'].value_counts().idxmax()
 
-    primary_transport = df['What is your primary mode of transportation?'].value_counts().idxmax()
-    crowd_levels = df['How crowded is your usual bus during peak hours?'].value_counts()
-
-    # Safely get the count for app openness
-    app_openness_col = 'Would you be open to using an app that gives personal travel advice based on real-time crowd levels?'
-    if app_openness_col in df.columns:
-        open_to_app_count = df[df[app_openness_col] == 'Yes'].shape[0]
-    else:
-        open_to_app_count = "N/A (column not found)"
 
     csv_data_summary = f"""
     Summary of Urban Mobility Survey responses from Almere:
