@@ -61,7 +61,7 @@ def determine_commuter_profile(user_survey_response):
     if q10_crowding_experience in ["Very crowded", "Overcrowded"] and q16_change_departure_scale <= 2 and q21_full_bus_response == "Board anyway":
         return "Inflexible Tolerant"
 
-    # 3. Peak Routine Commuter: Early, rigid schedule and low flexibility
+    # 3. Peak Routine Traveller: Early, rigid schedule and low flexibility
     if (q7_departure_time == " 04:00 PM - 06:00 PM (Evening Peak)" or q7_departure_time == "07:00 AM - 09:00 AM (Morning Peak)") and q9_commute_frequency == "5+ days" and q16_change_departure_scale <= 2:
         return "Peak Routine Commuter"
 
@@ -71,7 +71,7 @@ def determine_commuter_profile(user_survey_response):
 
     # 5. Adaptive Off-Peak Traveller: A catch-all for other flexible commuters
     # This profile is assigned if a user doesn't fit a more specific, rigid profile.
-    if q7_departure_time in ["09:00 AM - 04:00 PM (Midday)", "04:00 AM - 07:00 AM (Early Morning)", "06:00 PM - 04:00 AM (Late Night/Overnight)"] and q16_change_departure_scale >= 3:
+    if q7_departure_time in ["09:00 AM - 04:00 PM (Dat Time)", "04:00 AM - 07:00 AM (Early Morning)", "06:00 PM - 04:00 AM (Evening/Overnight)"] and q16_change_departure_scale >= 3:
         return "Adaptive Off-Peak Traveller"
 
     # Fallback to a default profile if none of the specific conditions are met
