@@ -175,6 +175,9 @@ BUS_SCHEDULE_DATA = {
 try:
     df = pd.read_csv("AlmereBot/urban.csv")
 
+    # CRITICAL FIX: Strip whitespace from column names to prevent KeyErrors
+    df.columns = df.columns.str.strip() 
+
     # Clean and analyze the data to create a summary for the chatbot
     # Ensure column names match your CSV exactly
     issues_frustration = df['What issues frustrate you most about Almere Bus line?'].value_counts()
