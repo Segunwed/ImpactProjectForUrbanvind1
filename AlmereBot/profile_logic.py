@@ -3,7 +3,7 @@ import datetime
 # --- Commuter Profiles Definition ---
 # This dictionary contains the definitions for each commuter profile.
 COMMUTER_PROFILES = {
-    "Peak Routine Commuter": {
+    "Peak Routine traveller": {
         "description": "A person with a fixed, early commute schedule who is less likely to change their plans, even when faced with crowding.",
         "logic_keywords": "Early departure, fixed schedule (5+ days/week), low flexibility, low digital openness, takes the bus anyway when crowded."
     },
@@ -15,7 +15,7 @@ COMMUTER_PROFILES = {
         "description": "Someone who reports high crowding but is not affected by it. They have a fixed routine and a high tolerance for discomfort, making them unlikely to change their travel habits.",
         "logic_keywords": "High crowding experience, high tolerance, fixed schedule, unaffected by crowding, low digital openness."
     },
-    "Adaptive Midday Rider": {
+    "Adaptive Off-Peak Rider": {
         "description": "A commuter with some flexibility who rides during midday hours. Their choices are context-driven, and they are open to new tools and ideas but not necessarily proactive planners.",
         "logic_keywords": "Midday/later departure, some flexibility, open to new ideas, context-driven choices."
     },
