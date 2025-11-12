@@ -15,7 +15,7 @@ COMMUTER_PROFILES = {
         "description": "Someone who reports high crowding but is not affected by it. They have a fixed routine and a high tolerance for discomfort, making them unlikely to change their travel habits.",
         "logic_keywords": "High crowding experience, high tolerance, fixed schedule, unaffected by crowding, low digital openness."
     },
-    "Adaptive Off-Peak Rider": {
+    "Adaptive Off-Peak Traveller": {
         "description": "A commuter with some flexibility who rides during midday hours. Their choices are context-driven, and they are open to new tools and ideas but not necessarily proactive planners.",
         "logic_keywords": "Midday/later departure, some flexibility, open to new ideas, context-driven choices."
     },
@@ -69,11 +69,11 @@ def determine_commuter_profile(user_survey_response):
     if q16_change_departure_scale >= 3 and q21_full_bus_response in ["Wait for the next one", "Switch to a different line"]:
         return "Late Responder"
 
-    # 5. Adaptive Midday Rider: A catch-all for other flexible commuters
+    # 5. Adaptive Off-Peak Traveller: A catch-all for other flexible commuters
     # This profile is assigned if a user doesn't fit a more specific, rigid profile.
     if q7_departure_time in ["09:00 AM - 04:00 PM (Midday)", "04:00 PM - 08:00 PM (Evening Peak)", "08:00 PM - 04:00 AM (Late Night/Overnight)"] and q16_change_departure_scale >= 3:
-        return "Adaptive Midday Rider"
+        return "Adaptive Off-Peak Traveller"
 
     # Fallback to a default profile if none of the specific conditions are met
     # This ensures "Unknown Profile" is never returned.
-    return "Adaptive Midday Rider"
+    return "Adaptive Off-Peak Traveller"
