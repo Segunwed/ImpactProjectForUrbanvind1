@@ -33,8 +33,7 @@ COMMUTER_PROFILES = {
 def determine_commuter_profile(user_survey_response):
     """
     Determines a commuter's profile based on their answers to key survey questions.
-    This logic has been revised to be more comprehensive and ensure a profile
-    is always assigned based on the available answers.
+    The logic ensures a profile is always assigned based on the available answers.
 
     Args:
         user_survey_response (dict): A dictionary containing the user's answers,
@@ -47,18 +46,17 @@ def determine_commuter_profile(user_survey_response):
     q7_departure_time = user_survey_response.get('What time do you usually leave for work/school?', '')
     q9_commute_frequency = user_survey_response.get('How many days per week do you commute?', '')
     q10_crowding_experience = user_survey_response.get('How crowded is your usual bus during peak hours?', '')
+
     # Safely convert to int, using a default of 0 for low flexibility if conversion fails.
     try:
         q16_change_departure_scale = int(user_survey_response.get('I would change my departure time if I knew my usual bus was full.', 0))
     except (ValueError, TypeError):
         q16_change_departure_scale = 0
-        
+
     q21_full_bus_response = user_survey_response.get('If your usual bus is 90% full when it arrives, what would you most likely do?', '')
 
-    # --- Profile Determination Logic (Revised to be more comprehensive) ---
-    
-    # Check for strong indicators first
-    
+    # --- Profile Determination Logic ---
+
     # 1. Flexible Avoider: Prioritizes changing plans to avoid a full bus
     if q16_change_departure_scale >= 4 and q21_full_bus_response in ["Wait for the next one", "Change my travel time", "Switch to a different line"]:
         return "Flexible Avoider"
@@ -67,19 +65,18 @@ def determine_commuter_profile(user_survey_response):
     if q10_crowding_experience in ["Very crowded", "Overcrowded"] and q16_change_departure_scale <= 2 and q21_full_bus_response == "Board anyway":
         return "Inflexible Tolerant"
 
-    # 3. Peak Routine Traveller: Early, rigid schedule and low flexibility
-    if (q7_departure_time == "04:00 AM - 07:00 AM (Early Morning)" or q7_departure_time == "07:00 AM - 09:00 AM (Morning Peak)") and q9_commute_frequency == "5+ days" and q16_change_departure_scale <= 2:
-        return "Peak Routine Traveller" # Corrected name
+    # 3. Peak Routine Traveller: Peak hours, rigid schedule, and low flexibility
+    # Includes Early Morning, Morning Peak, and Evening Peak
+    if (q7_departure_time in ["04:00 AM - 07:00 AM (Early Morning)", "07:00 AM - 09:00 AM (Morning Peak)", "04:00 PM - 08:00 PM (Evening Peak)"]) and q9_commute_frequency == "5+ days" and q16_change_departure_scale <= 2:
+        return "Peak Routine Traveller"
 
     # 4. Late Responder: Reacts in the moment to a full bus, but doesn't proactively plan
     if q16_change_departure_scale >= 3 and q21_full_bus_response in ["Wait for the next one", "Switch to a different line"]:
         return "Late Responder"
 
-    # 5. Adaptive Off-Peak Traveller: A catch-all for other flexible commuters
-    # This profile is assigned if a user doesn't fit a more specific, rigid profile.
-    if q7_departure_time in ["09:00 AM - 04:00 PM (Midday)", "04:00 PM - 08:00 PM (Evening Peak)", "08:00 PM - 04:00 AM (Late Night/Overnight)"] and q16_change_departure_scale >= 3:
-        return "Adaptive Off-Peak Traveller" # Corrected name
+    # 5. Adaptive Off-Peak Traveller: Flexible and rides during off-peak hours (Midday, Late Night)
+    if q7_departure_time in ["09:00 AM - 04:00 PM (Midday)", "08:00 PM - 04:00 AM (Late Night/Overnight)"] and q16_change_departure_scale >= 3:
+        return "Adaptive Off-Peak Traveller"
 
     # Fallback to a default profile if none of the specific conditions are met
-    # This ensures "Unknown Profile" is never returned.
-    return "Adaptive Off-Peak Traveller" # Corrected name
+    return "Adaptive Off-Peak Traveller"
