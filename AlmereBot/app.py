@@ -219,9 +219,9 @@ CONVERSATIONAL_QUESTIONS = [
         "options": [
             "04:00 AM - 07:00 AM (Early Morning)",
             "07:00 AM - 09:00 AM (Morning Peak)",
-            "09:00 AM - 04:00 PM (Midday)",
-            "04:00 PM - 08:00 PM (Evening Peak)",
-            "08:00 PM - 04:00 AM (Late Night/Overnight)"
+            "09:00 AM - 04:00 PM (Dat Time Period)",
+            "04:00 PM - 06:00 PM (Evening Peak)",
+            "06:00 PM - 04:00 AM (Evening/Overnight)"
         ]
     },
     {
