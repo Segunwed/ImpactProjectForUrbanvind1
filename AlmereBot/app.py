@@ -340,9 +340,9 @@ def generate_bot_response_with_gemini(user_message, selected_profile, csv_summar
     return response_text
 
 # --- Streamlit UI ---
-st.set_page_config(page_title="Urbanvind Commuter Chatbot", layout="centered")
+st.set_page_config(page_title="Urbanvind Traveller Chatbot", layout="centered")
 
-st.title("🏙️ Urbanvind Commuter Chatbot")
+st.title("🏙️ Urbanvind Traveller Chatbot")
 st.markdown("Your personalized travel assistant for Almere.")
 
 # --- Main Canvas: Display Current Time ---
