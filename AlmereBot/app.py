@@ -180,7 +180,7 @@ try:
 
     # Clean and analyze the data to create a summary for the chatbot
     # Ensure column names match your CSV exactly
-    issues_frustration = df['What issues frustrate you most about Almere Bus line?'].value_counts()
+    issues_frustration = df['What issues frustrate you most about Almere Bus line'].value_counts()
     
     # Handle potential non-numeric values in 'What time do you usually leave for work/school?'
     # Convert to datetime objects for proper averaging
