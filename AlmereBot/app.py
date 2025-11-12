@@ -88,7 +88,7 @@ for line in ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']:
     for h in range(4, 23): # Roughly 4 AM to 1 AM (next day)
         if 6 <= h <= 9: # Morning peak
             perc = 70 if line in ['M2'] else 85 if line in ['M7'] else 90 # Example variations
-        elif 12 <= h <= 14: # Midday
+        elif 12 <= h <= 14: # Day Time Period
             perc = 30 if line in ['M1', 'M2'] else 50 if line in ['M7'] else 40
         elif 16 <= h <= 19: # Evening peak
             perc = 75 if line in ['M1'] else 80 if line in ['M2'] else 95 if line in ['M7'] else 90
@@ -102,7 +102,7 @@ for line in ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']:
 for h in range(5, 23): # Roughly 5 AM to 1 AM (next day)
     if 7 <= h <= 9: # Morning peak
         perc = 80
-    elif 12 <= h <= 14: # Midday
+    elif 12 <= h <= 14: # Day Time Period
         perc = 45
     elif 16 <= h <= 19: # Evening peak
         perc = 85
