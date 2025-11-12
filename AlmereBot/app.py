@@ -293,50 +293,83 @@ def call_gemini_api(prompt_text):
     return "I'm currently unable to process your request. Please try again later."
 
 
-def generate_bot_response_with_gemini(user_message, selected_profile, csv_summary, bus_schedule_data):
+def generate_bot_response_with_gemini(prompt, selected_profile, csv_data_summary, bus_schedule_data):
     """
-    Generates a tailored bot response using the Gemini API, incorporating
-    the user's profile, simulated crowding data, CSV survey summary, and bus schedule data.
+    Generates a personalized response from the Gemini model.
     """
-    profile_info = COMMUTER_PROFILES.get(selected_profile, {"description": "unknown", "logic_keywords": "unknown"})
+
+    # Get the current hour in a specific timezone (e.g., CET/CEST for Almere, Netherlands)
+    # Using a general system datetime if specific timezone handling is complex in this environment
     current_hour = datetime.now().hour
-    current_time_key = f'Hour {current_hour}' # Use exact hour for lookup
 
-    # Get current crowding data for all lines
-    current_crowding_info = {}
-    for line, hours_data in SIMULATED_CROWDING_DATA.items():
-        data = hours_data.get(current_time_key, {'status': 'not operating', 'percentage': 0})
-        current_crowding_info[line] = data
+    # Convert simulation data to a prompt-friendly string
+    simulation_data_str = "Current simulated bus crowding data:\n"
+    current_crowding_info = []
 
-    # Construct the prompt for Gemini, including all relevant data
-    prompt = f"""
-    You are Urbanvind Commuter Chatbot, a decision support system for Almere residents.
-    Your goal is to provide tailored travel suggestions and information based on the user's commuter profile, real-time (simulated) crowding data, insights from a survey of Almere commuters, and detailed bus schedules.
+    for line, data in SIMULATED_CROWDING_DATA.items():
+        hour_key = f'Hour {current_hour}'
+        if hour_key in data:
+            crowding = data[hour_key]
+            current_crowding_info.append(f"Line {line} (Hour {current_hour}): {crowding['percentage']}% full, Status: {crowding['status']}")
 
-    Insights from the Almere Commuter Survey:
-    {csv_summary}
+    simulation_data_str += "\n".join(current_crowding_info)
 
-    Almere Bus Schedules:
-    {json.dumps(bus_schedule_data, indent=2)}
+    # --- Profile-Specific Instructions ---
 
-    The user's profile is: "{selected_profile}".
-    This means: {profile_info['description']}
-    Key characteristics of this profile include: {profile_info['logic_keywords']}
+    # Fetch details for the selected profile to guide the bot's persona and advice
+    profile_details = COMMUTER_PROFILES.get(selected_profile, COMMUTER_PROFILES["Unknown Profile"])
+    profile_description = profile_details["description"]
+    profile_keywords = profile_details["logic_keywords"]
 
-    Current simulated crowding data for Almere bus lines at {current_time_key}:
-    {json.dumps(current_crowding_info, indent=2)}
+    # --- System Prompt Setup ---
+    # The system prompt ensures the bot acts as a helpful, personalized advisor.
 
-    Based on the user's profile, the survey insights, the current crowding data, AND the bus schedule data, provide a tailored travel suggestion or answer their question.
-    Keep your response concise, helpful, and align it with their profile's characteristics.
-    If the user asks about crowding, provide specific details from the simulated data.
-    If the user asks for general travel advice for Almere, use the current simulated crowding data and the survey insights to give a general recommendation, considering typical frustrations and popular transport modes.
-    If the user asks about a specific bus line's schedule, route, or stops, provide details from the bus schedule data.
-    If the user asks for general advice, use their profile to suggest appropriate actions (e.g., for 'Flexible Avoider', suggest proactive changes; for 'Peak Routine Commuter', acknowledge their routine but gently suggest minor adjustments if needed).
+    system_prompt = f"""
+    You are AlmereBot, a friendly and expert commuter advice chatbot.
+    Your goal is to provide **personalized, data-driven advice** to the user.
 
-    User's message: "{user_message}"
+    --- USER PROFILE CONTEXT ---
+    The user's determined profile is: **{selected_profile}**.
+    Profile Description: "{profile_description}"
+    Profile Logic Keywords: "{profile_keywords}"
+
+    --- DATA CONTEXT ---
+    1. **Real-time Crowding (Simulated):** {simulation_data_str}
+    2. **General Survey Data:** {csv_data_summary}
+    3. **Example Schedule/Crowding:** {json.dumps(bus_schedule_data)}
+
+    --- INSTRUCTIONS ---
+    1. **Persona:** Adopt the personality of the **{selected_profile}** in your advice.
+       - If the user is a **Flexible Avoider**, encourage early or late travel options and provide alternatives.
+       - If the user is a **Peak Routine Traveller**, acknowledge their fixed schedule and offer small, actionable steps they *can* take (like checking the schedule right before leaving, or route alternatives for highly congested buses) instead of suggesting they shift their entire commute time.
+       - If the user is **Inflexible Tolerant**, focus advice on making their fixed commute more comfortable (e.g., which bus lines are least full, or general recommendations for on-bus comfort).
+       - If the user is an **Adaptive Off-Peak Traveller**, give them context-driven ideas and highlight new tools that could help them plan better.
+    2. **Advice:** Always use the **SIMULATED CROWDING DATA** and **BUS SCHEDULE DATA** to ground your specific recommendations (e.g., "Bus M4 at 8 AM is 95% full, try Bus 330 at 8:05 AM which is only 70% full.").
+    3. **Tone:** Be encouraging, positive, and direct. Keep responses concise and focused on solving the user's travel problem.
     """
 
-    response_text = call_gemini_api(prompt)
+    # --- API Call Payload ---
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "config": {
+            "systemInstruction": system_prompt
+        }
+    }
+
+    # API call with retry mechanism
+    try:
+        response_json = call_gemini_with_retry(payload)
+    except Exception:
+        # Fallback response if API fails after all retries
+        return f"I'm sorry, I'm having trouble connecting to my advice engine right now. I know you're a **{selected_profile}**, so in the meantime, perhaps you should check the M4 line for high crowding between 7 AM and 9 AM."
+
+    # Extract response text
+    try:
+        bot_response = response_json['candidates'][0]['content']['parts'][0]['text']
+    except (KeyError, IndexError, TypeError):
+        bot_response = "I encountered an error processing your request. Please try again."
+
+    return bot_response
     return response_text
 
 # --- Streamlit UI ---
