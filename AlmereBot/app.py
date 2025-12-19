@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo # Note: Adding ZoneInfo for time zone awareness in
 # --- Configuration ---
 # IMPORTANT: Replace "YOUR_GEMINI_API_KEY" with your actual Gemini API key.
 # You can get one from Google AI Studio: https://aistudio.google.com/
-GEMINI_API_KEY = "AIzaSyAiq6QSN0P6UNIUPE0x6aDTOCyJ7r6Kzvk"
+GEMINI_API_KEY = "AIzaSyDiWe6b2k_Wj_vUWYhx-aU10UjrGcVVzVw"
 GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
 # --- Helper to determine status from percentage ---
